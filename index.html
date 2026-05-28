@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Happy Birthday, Dearest Sister!</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Caveat:wght@500;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --night-1:#1a0b2e;       /* deep plum */
+    --night-2:#3d1561;       /* royal violet */
+    --night-3:#5b1f7a;       /* magenta-violet */
+    --rose:#ff5d8f;          /* hot rose */
+    --rose-soft:#ffb3c9;
+    --gold:#ffd166;          /* warm gold */
+    --gold-deep:#f4a93c;
+    --cream:#fff6ea;
+    --mint:#7be0c0;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Quicksand',sans-serif;
+    color:var(--cream);
+    background:
+      radial-gradient(1200px 800px at 15% -10%, rgba(255,93,143,.30), transparent 60%),
+      radial-gradient(1000px 700px at 110% 10%, rgba(255,209,102,.22), transparent 55%),
+      radial-gradient(900px 900px at 50% 120%, rgba(123,224,192,.16), transparent 60%),
+      linear-gradient(160deg, var(--night-1), var(--night-2) 45%, var(--night-3));
+    background-attachment:fixed;
+    overflow-x:hidden;
+  }
+  .font-display{font-family:'Fraunces',serif;}
+  .font-hand{font-family:'Caveat',cursive;}
+
+  /* ---------- Sparkle / star field ---------- */
+  .sky{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .star{
+    position:absolute;border-radius:50%;
+    background:radial-gradient(circle, #fff, rgba(255,255,255,.2) 60%, transparent 70%);
+    animation:twinkle var(--dur,3s) ease-in-out infinite;
+    animation-delay:var(--delay,0s);
+  }
+  @keyframes twinkle{0%,100%{opacity:.15;transform:scale(.6);}50%{opacity:1;transform:scale(1.2);}}
+
+  /* ---------- Floating balloons ---------- */
+  .balloon{
+    position:fixed;bottom:-180px;width:64px;height:82px;border-radius:50% 50% 48% 48%;
+    z-index:1;pointer-events:none;opacity:.9;
+    animation:floatUp var(--bdur,16s) linear infinite;
+    animation-delay:var(--bdelay,0s);
+    filter:drop-shadow(0 8px 14px rgba(0,0,0,.25));
+  }
+  .balloon::after{content:"";position:absolute;left:50%;bottom:-46px;width:1px;height:46px;background:rgba(255,255,255,.45);transform:translateX(-50%);}
+  .balloon::before{content:"";position:absolute;left:18%;top:14%;width:16px;height:22px;border-radius:50%;background:rgba(255,255,255,.45);filter:blur(2px);}
+  @keyframes floatUp{
+    0%{transform:translateY(0) translateX(0) rotate(-4deg);opacity:0;}
+    8%{opacity:.9;}
+    50%{transform:translateY(-55vh) translateX(20px) rotate(4deg);}
+    100%{transform:translateY(-115vh) translateX(-10px) rotate(-3deg);opacity:0;}
+  }
+
+  /* ---------- Confetti ---------- */
+  .confetti-container{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:60;}
+  .confetti{position:absolute;width:10px;height:14px;opacity:0;border-radius:2px;animation:confetti-fall var(--cdur,5s) linear infinite;animation-delay:var(--cdelay,0s);}
+  @keyframes confetti-fall{
+    0%{transform:translateY(-12vh) rotateZ(0);opacity:1;}
+    100%{transform:translateY(112vh) rotateZ(720deg);opacity:0;}
+  }
+  /* one-shot burst pieces */
+  .burst-piece{position:fixed;top:50%;left:50%;width:12px;height:18px;border-radius:2px;z-index:120;pointer-events:none;
+    animation:burst var(--burst-dur,1.6s) cubic-bezier(.15,.7,.3,1) forwards;}
+  @keyframes burst{
+    0%{transform:translate(-50%,-50%) rotate(0);opacity:1;}
+    100%{transform:translate(calc(-50% + var(--bx)),calc(-50% + var(--by))) rotate(var(--br));opacity:0;}
+  }
+
+  /* ---------- Generic reveal animations ---------- */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeScale{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
+  @keyframes popIn{0%{opacity:0;transform:scale(.7) rotate(-6deg);}70%{transform:scale(1.05) rotate(2deg);}100%{opacity:1;transform:scale(1) rotate(var(--tilt,0deg));}}
+  @keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+  .reveal{opacity:0;animation:fadeUp .9s ease-out forwards;}
+  .pop{opacity:0;animation:popIn .7s cubic-bezier(.2,.8,.3,1.2) forwards;}
+  .floaty{animation:floaty 4s ease-in-out infinite;}
+
+  /* ---------- Cake / candle ---------- */
+  .flame{transform-origin:center bottom;animation:flicker 1.4s ease-in-out infinite;}
+  @keyframes flicker{0%,100%{transform:scaleY(1) rotate(-2deg);opacity:1;}50%{transform:scaleY(1.12) rotate(2deg);opacity:.85;}}
+
+  /* ---------- 3D Gift box ---------- */
+  .gift-scene{perspective:900px;}
+  .gift3d{position:relative;width:170px;height:150px;transform-style:preserve-3d;cursor:pointer;transition:transform .3s ease;}
+  .gift3d:hover{transform:rotate(-2deg) scale(1.04);}
+  .gift-base{position:absolute;bottom:0;width:170px;height:110px;border-radius:10px;
+    background:linear-gradient(135deg,var(--rose),#c8316b);box-shadow:inset 0 -10px 20px rgba(0,0,0,.25),0 14px 26px rgba(0,0,0,.35);}
+  .gift-ribbon-v{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:26px;height:110px;background:linear-gradient(var(--gold),var(--gold-deep));}
+  .gift-lid{position:absolute;top:0;left:-8px;width:186px;height:46px;border-radius:8px;
+    background:linear-gradient(135deg,#ff7aa6,var(--rose));box-shadow:0 8px 14px rgba(0,0,0,.3);
+    transform-origin:center bottom;transition:transform 1.1s cubic-bezier(.2,.8,.2,1),opacity .9s ease;z-index:3;}
+  .gift-lid-ribbon{position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:46px;background:linear-gradient(var(--gold),var(--gold-deep));}
+  .gift-bow{position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:54px;height:30px;z-index:4;transition:transform 1.1s ease,opacity .9s ease;}
+  .gift-bow span{position:absolute;top:0;width:26px;height:30px;border:7px solid var(--gold);border-radius:50%;}
+  .gift-bow span.l{left:-2px;transform:rotate(-22deg);}
+  .gift-bow span.r{right:-2px;transform:rotate(22deg);}
+  .opened .gift-lid{transform:translateY(-130px) rotate(-26deg);opacity:0;}
+  .opened .gift-bow{transform:translate(-50%,-150px) rotate(40deg);opacity:0;}
+  .gift-glow{position:absolute;top:-10px;left:50%;width:8px;height:8px;transform:translateX(-50%);border-radius:50%;
+    box-shadow:0 0 0 0 rgba(255,209,102,.0);transition:box-shadow .2s;}
+  .opened .gift-glow{box-shadow:0 0 120px 60px rgba(255,209,102,.55);}
+
+  /* light rays */
+  .rays{position:absolute;top:30px;left:50%;width:4px;height:120px;transform:translateX(-50%);opacity:0;}
+  .opened .rays{opacity:1;animation:raySpin 8s linear infinite;}
+  .rays i{position:absolute;left:50%;top:50%;width:3px;height:160px;transform-origin:center top;
+    background:linear-gradient(rgba(255,209,102,.85),transparent);}
+  @keyframes raySpin{to{transform:translateX(-50%) rotate(360deg);}}
+
+  /* ---------- buttons ---------- */
+  .btn-gold{
+    background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+    color:#3a1c00;font-weight:700;border:none;cursor:pointer;
+    box-shadow:0 10px 22px rgba(244,169,60,.45),inset 0 1px 0 rgba(255,255,255,.6);
+    transition:transform .25s ease,box-shadow .25s ease;
+  }
+  .btn-gold:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 14px 30px rgba(244,169,60,.6);}
+  .btn-ghost{
+    background:rgba(255,255,255,.08);color:var(--cream);border:1px solid rgba(255,255,255,.25);
+    cursor:pointer;backdrop-filter:blur(6px);transition:transform .25s,background .25s;
+  }
+  .btn-ghost:hover{transform:translateY(-2px) scale(1.03);background:rgba(255,255,255,.16);}
+
+  .glass{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(10px);}
+  .text-glow{text-shadow:0 0 26px rgba(255,209,102,.5),0 2px 12px rgba(0,0,0,.4);}
+
+  /* polaroid */
+  .polaroid{background:var(--cream);padding:10px 10px 34px;border-radius:6px;box-shadow:0 12px 26px rgba(0,0,0,.35);
+    transition:transform .35s cubic-bezier(.2,.8,.3,1.2),box-shadow .35s;}
+  .polaroid:hover{transform:translateY(-8px) rotate(0deg) scale(1.04);box-shadow:0 22px 40px rgba(0,0,0,.5);z-index:5;}
+  .polaroid img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:3px;}
+  .tape{position:absolute;top:-10px;left:50%;transform:translateX(-50%) rotate(-3deg);width:70px;height:22px;background:rgba(255,209,102,.55);border-radius:2px;}
+
+  ::selection{background:var(--rose);color:#fff;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef, Fragment } = React;
+
+/* =====================================================================
+   ⭐  CUSTOMIZE EVERYTHING HERE  ⭐
+   Edit the text, names, jokes, gift amount, music and photos below.
+   (Right now it uses sample photos + placeholder jokes.)
+   ===================================================================== */
+const CONFIG = {
+  // --- Names & teasing intro ---
+  realName: "Priya",                 // her actual name (used in the elegant title)
+  teaseName: "Motki",                // the teasing nickname you call her
+  niceTeaseName: "Ek to sala ye bday bhi roj roj aa jata hai", // the "correction" line
+
+  // --- The big main headline on the celebration page ---
+  mainHeadline: "Happy Birthday Nautanki kahin ki!",
+  subLine1: "Sudhar jao aur apne bhai ki karo ijjat!",
+  subLine2: "Kundali ke anusaar bhai ki seva karne se hogi tarakki 😆",
+
+  // --- The sweet (real) wish that scrolls in ---
+  sweetWish: "Tu chahe kitni bhi tang kare, duniya ki sabse pyaari behen tu hi hai. Wish you the happiest birthday — shine bright, always.",
+
+  // --- Background music (plays from page 1 through the celebration) ---
+  // "Heart of the Ocean" by Purrple Cat (chosic.com) — free, royalty-free.
+  musicUrl: "https://www.chosic.com/wp-content/uploads/2022/01/Heart-Of-The-Ocean(chosic.com).mp3",
+  // --- Happy Birthday song (plays after she blows the candles) ---
+  // Public-domain recording from the Internet Archive.
+  birthdayMusicUrl: "https://archive.org/download/HappyBirthdayToYouTraditional/Happy_Birthday_To_You_%28Traditional%29.mp3",
+
+  // --- The "something special" message shown after blowing the candles ---
+  specialTitle: "Make a wish, Priya Di 🌟",
+  specialMessage: "Today is all about you. May everything you’ve ever wished for come true—all the happiness in the world, good health, love, and a brother who will always have your back. Happy Birthday, my beautiful sister! ❤️",
+
+  // --- The real gift amount (counts up dramatically) ---
+  giftAmount: 11111,
+  giftMessage: "Jaa, jeele apni zindagi❤️, jo khardna hai kharid le 100 rs ke anadar baki paise vapis bhej",
+
+  // --- Funny FAKE gifts shown before the real one (teasing) ---
+  fakeGifts: [
+    { title: "Surprise! 🎁", line: "Shakal dekhi hai aina me?", sub: "Gift chahiye inko hatt😌" },
+    { title: "Congratulations! 🎉", line: "1 free jhaadu-pocha coupon", sub: "Use before it expires... jaldi kar pure ghar ka jhaadu-pocha maar chal!" },
+  ],
+
+  // --- Photos (swap src with your real photo file names later) ---
+  // For now these are nice sample photos.
+  photos: [
+    { src: "https://picsum.photos/seed/sis-a/700/700", memory: "Wahi purani wali nautanki 😄" },
+    { src: "https://picsum.photos/seed/sis-b/700/700", memory: "Smile to dekho — camera tut na jaaye" },
+    { src: "https://picsum.photos/seed/sis-c/700/700", memory: "Festival vibes — full filmy" },
+    { src: "https://picsum.photos/seed/sis-d/700/700", memory: "Cake se zyada pyaar kisi se nahi" },
+    { src: "https://picsum.photos/seed/sis-e/700/700", memory: "Family ke saath — best moments" },
+    { src: "https://picsum.photos/seed/sis-f/700/700", memory: "Bachpan ki photo — kitni choti thi" },
+    { src: "https://picsum.photos/seed/sis-g/700/700", memory: "Makeup ka ek aur ghanta lag gaya" },
+    { src: "https://picsum.photos/seed/sis-h/700/700", memory: "Hamesha aise hi muskurati reh" },
+    { src: "https://picsum.photos/seed/sis-i/700/700", memory: "Ye wala pose famous hai 😎" },
+    { src: "https://picsum.photos/seed/sis-j/700/700", memory: "Saath me masti — never ending" },
+    { src: "https://picsum.photos/seed/sis-k/700/700", memory: "Sabse precious memory" },
+    { src: "https://picsum.photos/seed/sis-l/700/700", memory: "Tu best hai (mat batana maine bola)" },
+  ],
+
+  signoff: "With all my love (and ashirvaad) — Your Brother",
+};
+/* ===================================================================== */
+
+
+/* ---------------- Background Music (two tracks, cross-faded) ---------------- */
+const BackgroundMusic = ({ play, track }) => {
+  // track: "bg" → CONFIG.musicUrl, "birthday" → CONFIG.birthdayMusicUrl
+  const bgRef = useRef(null);
+  const bdRef = useRef(null);
+
+  // Fade helper
+  const fade = (audio, from, to, ms = 1200) => {
+    if (!audio) return;
+    const steps = 24;
+    const dt = ms / steps;
+    let i = 0;
+    audio.volume = from;
+    const id = setInterval(() => {
+      i++;
+      const v = from + (to - from) * (i / steps);
+      audio.volume = Math.max(0, Math.min(1, v));
+      if (i >= steps) {
+        clearInterval(id);
+        if (to === 0) { try { audio.pause(); } catch (e) {} }
+      }
+    }, dt);
+  };
+
+  useEffect(() => {
+    const bg = bgRef.current;
+    const bd = bdRef.current;
+    if (!bg || !bd) return;
+
+    if (!play) {
+      fade(bg, bg.volume, 0, 400);
+      fade(bd, bd.volume, 0, 400);
+      return;
+    }
+
+    if (track === "birthday") {
+      // Switch to birthday song
+      bd.currentTime = 0;
+      bd.volume = 0;
+      bd.play().catch(() => {});
+      fade(bd, 0, 0.6, 1400);
+      fade(bg, bg.volume || 0.45, 0, 1000);
+    } else {
+      // Background track
+      bg.volume = 0;
+      bg.play().catch(() => {});
+      fade(bg, 0, 0.45, 1400);
+      fade(bd, bd.volume || 0, 0, 600);
+    }
+  }, [play, track]);
+
+  return (
+    <Fragment>
+      <audio ref={bgRef} loop preload="auto">
+        <source src={CONFIG.musicUrl} type="audio/mpeg" />
+      </audio>
+      <audio ref={bdRef} loop preload="auto">
+        <source src={CONFIG.birthdayMusicUrl} type="audio/mpeg" />
+      </audio>
+    </Fragment>
+  );
+};
+
+/* ---------------- Special "make a wish" moment ---------------- */
+const SpecialMoment = ({ onClose }) => {
+  const hearts = useMemo(() => Array.from({ length: 18 }).map((_, i) => ({
+    id: i,
+    left: Math.random() * 90 + 5,
+    dur: Math.random() * 3 + 4,
+    delay: Math.random() * 2,
+    size: Math.random() * 22 + 18,
+    emoji: ["❤️","💖","✨","🌟","💫","🎀","🌸"][Math.floor(Math.random()*7)],
+  })), []);
+  return (
+    <div className="fixed inset-0 z-[130] flex items-center justify-center p-6 text-center"
+         style={{ background: "radial-gradient(ellipse at center, rgba(91,31,122,.92), rgba(10,4,20,.96))", animation: "fadeScale .6s ease-out forwards" }}>
+      {/* Floating hearts */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {hearts.map(h => (
+          <span key={h.id} style={{
+            position: "absolute",
+            left: h.left + "%",
+            bottom: "-60px",
+            fontSize: h.size + "px",
+            animation: `floatUp ${h.dur}s ease-in ${h.delay}s infinite`,
+            filter: "drop-shadow(0 0 12px rgba(255,209,102,.6))",
+          }}>{h.emoji}</span>
+        ))}
+      </div>
+
+      <div className="relative z-10 max-w-2xl">
+        <p className="font-hand text-3xl md:text-4xl text-rose-200 reveal">A special wish, just for you…</p>
+        <h2 className="font-display text-5xl md:text-7xl mt-4 text-glow reveal"
+            style={{ color: "var(--gold)", animationDelay: ".4s" }}>
+          {CONFIG.specialTitle}
+        </h2>
+        <p className="mt-8 text-lg md:text-2xl leading-relaxed reveal"
+           style={{ color: "var(--cream)", animationDelay: "1s" }}>
+          {CONFIG.specialMessage}
+        </p>
+        <button onClick={onClose}
+                className="reveal mt-12 px-9 py-3.5 rounded-full btn-gold text-lg"
+                style={{ animationDelay: "1.8s" }}>
+          Continue the celebration ↓
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/* ---------------- Ambient sky + balloons ---------------- */
+const Sky = () => {
+  const stars = useMemo(() => Array.from({ length: 70 }).map((_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    top: Math.random() * 100,
+    size: Math.random() * 3 + 1,
+    dur: Math.random() * 3 + 2,
+    delay: Math.random() * 4,
+  })), []);
+  return (
+    <div className="sky">
+      {stars.map(s => (
+        <span key={s.id} className="star" style={{
+          left: s.left + "%", top: s.top + "%",
+          width: s.size + "px", height: s.size + "px",
+          "--dur": s.dur + "s", "--delay": s.delay + "s",
+        }} />
+      ))}
+    </div>
+  );
+};
+
+const Balloons = () => {
+  const colors = ["#ff5d8f", "#ffd166", "#7be0c0", "#b388ff", "#ff8fab", "#ffadad"];
+  const arr = useMemo(() => Array.from({ length: 9 }).map((_, i) => ({
+    id: i,
+    left: Math.random() * 92 + 2,
+    color: colors[i % colors.length],
+    dur: Math.random() * 10 + 14,
+    delay: Math.random() * 12,
+    scale: Math.random() * 0.5 + 0.7,
+  })), []);
+  return (
+    <Fragment>
+      {arr.map(b => (
+        <div key={b.id} className="balloon" style={{
+          left: b.left + "%",
+          background: `radial-gradient(circle at 35% 30%, #ffffffcc, ${b.color} 45%, ${b.color})`,
+          "--bdur": b.dur + "s", "--bdelay": b.delay + "s",
+          transform: `scale(${b.scale})`,
+        }} />
+      ))}
+    </Fragment>
+  );
+};
+
+/* ---------------- Continuous confetti ---------------- */
+const Confetti = () => {
+  const colors = ["#ff5d8f", "#ffd166", "#7be0c0", "#b388ff", "#fff6ea", "#f4a93c"];
+  const pieces = useMemo(() => Array.from({ length: 90 }).map((_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    dur: Math.random() * 3 + 4,
+    delay: Math.random() * 6,
+    w: Math.random() * 6 + 6,
+  })), []);
+  return (
+    <div className="confetti-container">
+      {pieces.map(p => (
+        <div key={p.id} className="confetti" style={{
+          left: p.left + "vw", background: p.color,
+          width: p.w + "px", height: p.w * 1.4 + "px",
+          "--cdur": p.dur + "s", "--cdelay": p.delay + "s",
+        }} />
+      ))}
+    </div>
+  );
+};
+
+/* one-shot confetti burst from center */
+function fireBurst() {
+  const colors = ["#ff5d8f", "#ffd166", "#7be0c0", "#b388ff", "#fff6ea", "#f4a93c"];
+  const N = 120;
+  for (let i = 0; i < N; i++) {
+    const el = document.createElement("div");
+    el.className = "burst-piece";
+    const ang = Math.random() * Math.PI * 2;
+    const dist = Math.random() * 420 + 120;
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.setProperty("--bx", Math.cos(ang) * dist + "px");
+    el.style.setProperty("--by", Math.sin(ang) * dist + "px");
+    el.style.setProperty("--br", Math.random() * 720 + "deg");
+    el.style.setProperty("--burst-dur", (Math.random() * 0.8 + 1.2) + "s");
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2200);
+  }
+}
+
+/* ---------------- Count-up number ---------------- */
+const CountUp = ({ target, duration = 1600, prefix = "₹" }) => {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    let raf, start;
+    const step = (t) => {
+      if (!start) start = t;
+      const p = Math.min((t - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.floor(eased * target));
+      if (p < 1) raf = requestAnimationFrame(step);
+      else setVal(target);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return <span>{prefix}{val.toLocaleString("en-IN")}</span>;
+};
+
+/* ---------------- Typewriter ---------------- */
+const Typewriter = ({ text, speed = 38, className }) => {
+  const [shown, setShown] = useState("");
+  useEffect(() => {
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setShown(text.slice(0, i));
+      if (i >= text.length) clearInterval(id);
+    }, speed);
+    return () => clearInterval(id);
+  }, [text, speed]);
+  return <span className={className}>{shown}<span style={{ opacity: shown.length < text.length ? 1 : 0 }}>|</span></span>;
+};
+
+/* ---------------- Cake with blow-out candles ---------------- */
+const Cake = ({ onBlow }) => {
+  const [lit, setLit] = useState(true);
+  const candles = [0, 1, 2, 3, 4];
+  return (
+    <div className="flex flex-col items-center">
+      <svg width="240" height="220" viewBox="0 0 240 220" className="floaty">
+        {/* candles */}
+        {candles.map((c, i) => {
+          const x = 60 + i * 30;
+          return (
+            <g key={i}>
+              {lit && (
+                <g className="flame" style={{ transformOrigin: `${x}px 60px` }}>
+                  <ellipse cx={x} cy={54} rx="6" ry="11" fill="#ffd166" />
+                  <ellipse cx={x} cy={56} rx="3" ry="6" fill="#fff3c4" />
+                </g>
+              )}
+              <rect x={x - 3} y="66" width="6" height="34" rx="2" fill={i % 2 ? "#ff8fab" : "#7be0c0"} />
+            </g>
+          );
+        })}
+        {/* tiers */}
+        <rect x="40" y="100" width="160" height="46" rx="10" fill="#ff5d8f" />
+        <rect x="40" y="100" width="160" height="14" rx="7" fill="#ffb3c9" />
+        <rect x="54" y="146" width="132" height="52" rx="12" fill="#f4a93c" />
+        <rect x="54" y="146" width="132" height="14" rx="7" fill="#ffd166" />
+        {[0,1,2,3,4,5,6].map(i => <circle key={i} cx={62 + i*19} cy={114} r="3.4" fill="#fff6ea" />)}
+      </svg>
+      <button
+        onClick={() => { if (lit) { setLit(false); fireBurst(); onBlow && onBlow(); } }}
+        className={`mt-3 px-7 py-2.5 rounded-full text-sm ${lit ? "btn-gold" : "btn-ghost"}`}
+      >
+        {lit ? "🎂 Blow the candles!" : "Yay! Make a wish 💫"}
+      </button>
+    </div>
+  );
+};
+
+/* ---------------- Intro screen (teasing) ---------------- */
+const IntroScreen = ({ onEnter }) => {
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    const t1 = setTimeout(() => setStage(1), 600);
+    const t2 = setTimeout(() => setStage(2), 2200);
+    const t3 = setTimeout(() => setStage(3), 3200);
+    return () => [t1, t2, t3].forEach(clearTimeout);
+  }, []);
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center text-center p-6">
+      <Sky />
+      <div className="relative z-10">
+        <p className="font-hand text-3xl md:text-5xl text-rose-200" style={{ opacity: stage >= 1 ? 1 : 0, transition: "opacity .8s" }}>
+          Oye {CONFIG.teaseName}…
+        </p>
+        <h1 className="font-display text-5xl md:text-8xl mt-3 text-glow"
+            style={{ color: "var(--gold)", opacity: stage >= 2 ? 1 : 0, transform: stage >= 2 ? "scale(1)" : "scale(.85)", transition: "all .9s cubic-bezier(.2,.8,.2,1.2)" }}>
+          {CONFIG.niceTeaseName}
+        </h1>
+      </div>
+      {stage >= 3 && (
+        <button onClick={onEnter} className="reveal mt-12 px-9 py-3.5 rounded-full btn-gold text-lg z-10">
+          Enter the Celebration ✨
+        </button>
+      )}
+    </div>
+  );
+};
+
+/* ---------------- Fake-sweet prank screen ---------------- */
+const FakeSweetScreen = ({ onEnter }) => (
+  <div className="min-h-screen w-full flex flex-col items-center justify-center text-center p-6 relative">
+    <Sky />
+    <div className="reveal relative z-10 max-w-2xl">
+      <h2 className="font-display text-4xl md:text-6xl text-rose-200">Happy Birthday, My Loving Sister 🌸</h2>
+      <p className="mt-6 text-lg md:text-xl text-cream/90" style={{ color: "var(--cream)" }}>
+You are the most amazing, kind, wonderful, and supportive sister in the entire universe. I am so lucky to have you in my life. You are a true blessing!      </p>
+    </div>
+    <div className="reveal relative z-10 mt-12" style={{ animationDelay: "2s" }}>
+      <p className="font-hand text-2xl md:text-4xl text-cream/80">Tujhe kya laga tha aisa kuch bolunga kya mai?? 😏</p>
+      <p className="font-display text-4xl md:text-7xl mt-2" style={{ color: "var(--rose)" }}>Bakkk… 🤭</p>
+    </div>
+    <button onClick={onEnter} className="reveal relative z-10 mt-12 px-9 py-3.5 rounded-full btn-ghost text-lg" style={{ animationDelay: "3s" }}>
+      Theek hai, ab asli celebration →
+    </button>
+  </div>
+);
+
+/* ---------------- Gift section (multi-stage cinematic reveal) ---------------- */
+const GiftSection = () => {
+  const [open, setOpen] = useState(false);     // section opened
+  const [clicks, setClicks] = useState(0);     // how many boxes clicked
+  const [fake, setFake] = useState(null);      // current fake gift shown
+  const [opened, setOpened] = useState(false); // real box opened
+  const [showReal, setShowReal] = useState(false);
+
+  const totalFakes = CONFIG.fakeGifts.length;
+
+  const clickBox = () => {
+    if (opened) return;
+    if (clicks < totalFakes) {
+      setFake(CONFIG.fakeGifts[clicks]);
+      setClicks(c => c + 1);
+    } else {
+      // REAL reveal sequence
+      setOpened(true);
+      fireBurst();
+      setTimeout(() => { setShowReal(true); fireBurst(); }, 900);
+    }
+  };
+
+  const heading = opened ? "Yeh raha tera asli gift 🥹"
+    : clicks === 0 ? "Choose your surprise! 🎁"
+    : clicks < totalFakes ? "Hmm… ek aur try kar 😜"
+    : "Ab dhyaan se… yeh wala asli hai 👀";
+
+  return (
+    <section className="my-24 text-center relative z-10">
+      {!open ? (
+        <button onClick={() => setOpen(true)} className="px-12 py-5 rounded-full btn-gold text-2xl font-display floaty">
+          🎁 Gift Time!
+        </button>
+      ) : (
+        <div className="reveal">
+          <h2 className="font-display text-3xl md:text-5xl mb-10" style={{ color: "var(--gold)" }}>{heading}</h2>
+
+          {!opened ? (
+            <div className="flex flex-wrap justify-center gap-10 gift-scene">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="gift3d floaty" style={{ animationDelay: `${i * 0.3}s` }} onClick={clickBox}>
+                  <div className="gift-bow"><span className="l"></span><span className="r"></span></div>
+                  <div className="gift-lid"><div className="gift-lid-ribbon"></div></div>
+                  <div className="gift-base"><div className="gift-ribbon-v"></div></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex justify-center gift-scene">
+              <div className={`gift3d ${opened ? "opened" : ""}`} style={{ width: 200, height: 200 }}>
+                <div className="rays">{Array.from({length:12}).map((_,i)=>(<i key={i} style={{transform:`rotate(${i*30}deg)`}} />))}</div>
+                <div className="gift-glow"></div>
+                <div className="gift-bow"><span className="l"></span><span className="r"></span></div>
+                <div className="gift-lid"><div className="gift-lid-ribbon"></div></div>
+                <div className="gift-base"><div className="gift-ribbon-v"></div></div>
+              </div>
+            </div>
+          )}
+
+          {showReal && (
+            <div className="reveal mx-auto mt-10 max-w-md glass rounded-3xl p-8">
+              <p className="font-hand text-2xl text-rose-200">Mubarak ho! 🎊</p>
+              <div className="font-display text-5xl md:text-6xl my-4 text-glow" style={{ color: "var(--gold)" }}>
+                <CountUp target={CONFIG.giftAmount} />
+              </div>
+              <p className="text-cream/90" style={{ color: "var(--cream)" }}>{CONFIG.giftMessage}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Fake gift popup */}
+      {fake && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" style={{ background: "rgba(10,4,20,.66)" }} onClick={() => setFake(null)}>
+          <div className="glass rounded-3xl p-8 max-w-sm w-full text-center" style={{ animation: "fadeScale .4s ease-out forwards" }} onClick={e => e.stopPropagation()}>
+            <h3 className="font-display text-3xl mb-3" style={{ color: "var(--rose)" }}>{fake.title}</h3>
+            <div className="my-5 p-5 rounded-2xl" style={{ background: "rgba(255,93,143,.15)", border: "1px dashed var(--rose)" }}>
+              <p className="text-xl font-semibold" style={{ color: "var(--rose-soft)" }}>{fake.line}</p>
+              <p className="text-sm mt-2 text-cream/70">{fake.sub}</p>
+            </div>
+            <button onClick={() => setFake(null)} className="px-7 py-2.5 rounded-full btn-gold">
+              {clicks < totalFakes ? "Achha, chal ek aur mauka deta hun🙄" : "Last try! 🤞"}
+            </button>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
+
+/* ---------------- Photo modal ---------------- */
+const PhotoModal = ({ photo, onClose }) => {
+  if (!photo) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(10,4,20,.78)" }} onClick={onClose}>
+      <div className="glass rounded-3xl p-4 max-w-3xl w-full relative" style={{ animation: "fadeScale .35s ease-out forwards" }} onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute -top-3 -right-3 z-10 w-10 h-10 rounded-full btn-gold flex items-center justify-center text-lg">✕</button>
+        <div className="md:flex items-center gap-5">
+          <img src={photo.src} alt="memory" className="w-full md:w-1/2 max-h-[70vh] object-contain rounded-2xl" />
+          <div className="p-5 text-center md:text-left">
+            <h3 className="font-display text-2xl mb-3" style={{ color: "var(--gold)" }}>Our Memory</h3>
+            <p className="font-hand text-2xl text-cream/90" style={{ color: "var(--cream)" }}>{photo.memory}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ---------------- Main App ---------------- */
+function App() {
+  const [step, setStep] = useState(0);
+  const [music, setMusic] = useState(false);
+  const [track, setTrack] = useState("bg"); // "bg" or "birthday"
+  const [photo, setPhoto] = useState(null);
+  const [special, setSpecial] = useState(false);
+
+  const handleBlow = () => {
+    setTrack("birthday");
+    setSpecial(true);
+  };
+
+  // Music + ambient sky stay mounted across all steps so audio plays from page 1
+  return (
+    <Fragment>
+      <BackgroundMusic play={music} track={track} />
+
+      {step === 0 && <IntroScreen onEnter={() => { setMusic(true); setStep(1); }} />}
+      {step === 1 && <FakeSweetScreen onEnter={() => setStep(2)} />}
+      {step === 2 && (
+        <Fragment>
+          <Sky />
+          <Balloons />
+          <Confetti />
+          <PhotoModal photo={photo} onClose={() => setPhoto(null)} />
+          {special && <SpecialMoment onClose={() => setSpecial(false)} />}
+
+          <div className="relative z-10 min-h-screen px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto text-center">
+
+              <header className="pt-20 pb-6">
+                <h1 className="reveal font-display text-5xl md:text-8xl text-glow" style={{ color: "var(--gold)" }}>
+                  {CONFIG.mainHeadline}
+                </h1>
+                <p className="reveal font-hand text-2xl md:text-4xl mt-5 text-rose-200" style={{ animationDelay: ".8s" }}>
+                  {CONFIG.subLine1}
+                </p>
+                <p className="reveal text-lg md:text-2xl mt-2 text-cream/80" style={{ animationDelay: "1.3s", color: "var(--cream)" }}>
+                  {CONFIG.subLine2}
+                </p>
+              </header>
+
+              {/* Cake */}
+              <section className="reveal my-12 flex justify-center" style={{ animationDelay: "1.8s" }}>
+                <Cake onBlow={handleBlow} />
+              </section>
+
+          {/* Sweet wish typewriter */}
+          <section className="reveal my-16 max-w-3xl mx-auto glass rounded-3xl p-8" style={{ animationDelay: "2.2s" }}>
+            <p className="font-hand text-2xl md:text-3xl leading-relaxed" style={{ color: "var(--cream)" }}>
+              <Typewriter text={CONFIG.sweetWish} />
+            </p>
+          </section>
+
+          {/* Memories */}
+          <section className="my-20">
+            <h2 className="reveal font-display text-4xl md:text-5xl mb-10" style={{ color: "var(--gold)" }}>Our Memories</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {CONFIG.photos.map((p, i) => {
+                const tilt = (i % 3 - 1) * 3;
+                return (
+                  <div key={i} className="pop relative cursor-pointer" style={{ animationDelay: `${i * 90}ms`, "--tilt": tilt + "deg" }} onClick={() => setPhoto(p)}>
+                    <div className="polaroid relative" style={{ transform: `rotate(${tilt}deg)` }}>
+                      <span className="tape"></span>
+                      <img src={p.src} alt={`memory ${i + 1}`} />
+                      <p className="font-hand text-lg mt-2 text-gray-700 truncate px-1">{p.memory}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+              {/* Gift */}
+              <GiftSection />
+
+              <footer className="text-center pb-16">
+                <p className="font-display text-2xl md:text-3xl" style={{ color: "var(--rose-soft)" }}>{CONFIG.signoff}</p>
+              </footer>
+            </div>
+          </div>
+        </Fragment>
+      )}
+    </Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
